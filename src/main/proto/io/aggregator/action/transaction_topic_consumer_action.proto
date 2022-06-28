@@ -14,9 +14,9 @@ service TransactionTopicConsumer {
   };
 
   rpc TransactionFromTopic(TopicTransaction) returns (google.protobuf.Empty) {
-    option (kalix.method).eventing.in = {
-      topic: "jpmc-transactions"
-    };
+//    option (kalix.method).eventing.in = {
+//      topic: "jpmc-transactions"
+//    };
     option (google.api.http) = {
       post: "/transaction-topic/create"
       body: "*"

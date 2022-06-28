@@ -15,14 +15,14 @@ service TransactionToStripedSecond {
   };
 
   rpc OnTransactionCreated(entity.TransactionCreated) returns (google.protobuf.Empty) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "transaction"
-    };
+//    option (kalix.method).eventing.in = {
+//      event_sourced_entity: "transaction"
+//    };
   }
 
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (google.protobuf.Empty) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "transaction"
-    };
+//    option (kalix.method).eventing.in = {
+//      event_sourced_entity: "transaction"
+//    };
   }
 }

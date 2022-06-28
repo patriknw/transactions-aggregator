@@ -15,14 +15,14 @@ service StripedSecondToTransaction {
   };
 
   rpc OnTransactionPaid(entity.TransactionPaid) returns (google.protobuf.Empty) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "striped_second"
-    };
+//    option (kalix.method).eventing.in = {
+//      event_sourced_entity: "striped_second"
+//    };
   }
 
   rpc IgnoreOtherEvents(google.protobuf.Any) returns (google.protobuf.Empty) {
-    option (kalix.method).eventing.in = {
-      event_sourced_entity: "striped_second"
-    };
+//    option (kalix.method).eventing.in = {
+//      event_sourced_entity: "striped_second"
+//    };
   }
 }

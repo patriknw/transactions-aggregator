@@ -10,7 +10,7 @@ import com.google.protobuf.Timestamp;
 
 public class TimeTo {
   public static int stripe(String transactionId) {
-    return Math.abs(transactionId.hashCode() % 20);
+    return Math.abs(transactionId.hashCode() % 500);
   }
 
   public static Timestamp zero() {

@@ -51,9 +51,9 @@ object TransactionLoader extends App {
       }
   }
 
-  Source(1 to 500000)
-    .throttle(1000, 1.second)
-    .mapAsyncUnordered(150)(i => req(i).recover { exc =>
+  Source(1 to 1000000)
+//    .throttle(5000, 1.second)
+    .mapAsyncUnordered(300)(i => req(i).recover { exc =>
       println(s"Req $i failed: $exc")
       Done
     })

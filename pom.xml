@@ -11,7 +11,7 @@
     <properties>
 
     <!-- TODO Update to your own Docker repository or Docker Hub scope -->
-    <dockerImage>mckeeh3/${project.artifactId}</dockerImage>
+    <dockerImage>patriknw/${project.artifactId}</dockerImage>
     <dockerTag>${project.version}-${build.timestamp}</dockerTag>
     <maven.build.timestamp.format>yyyyMMddHHmmss</maven.build.timestamp.format>
     <mainClass>io.aggregator.Main</mainClass>

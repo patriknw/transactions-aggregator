@@ -68,7 +68,8 @@ public class StripedSecond extends AbstractStripedSecond {
   }
 
   private Effect<Empty> handle(StripedSecondEntity.StripedSecondState state, StripedSecondApi.AggregateStripedSecondCommand command) {
-    log.debug("state: {}\nAggregateCommand: {}", state, command);
+//    return effects().reply(Empty.getDefaultInstance());
+//    log.debug("state: {}\nAggregateCommand: {}", state, command);
 
     return effects()
         .emitEvents(eventsFor(state, command))
@@ -117,6 +118,9 @@ public class StripedSecond extends AbstractStripedSecond {
 
   static StripedSecondEntity.StripedSecondState handle(StripedSecondEntity.StripedSecondState state, StripedSecondEntity.StripedSecondAggregated event) {
     var transactions = state.getTransactionsList().stream()
+        // remove transactions aggregated in previous aggregation, keep latest
+        // FIXME this could be some other cleanup interval
+        .filter(transaction -> transaction.getAggregateRequestTimestamp().getSeconds() == 0)
         .map(transaction -> {
           if (transaction.getAggregateRequestTimestamp().getSeconds() == 0) {
             return transaction.toBuilder()
@@ -127,6 +131,8 @@ public class StripedSecond extends AbstractStripedSecond {
           }
         })
         .toList();
+
+    log.info("StripedSecondAggregated {} transactions", transactions.size());
 
     return state.toBuilder()
         .clearTransactions()
@@ -207,22 +213,33 @@ public class StripedSecond extends AbstractStripedSecond {
           .max(TimeTo.comparator())
           .get();
 
+//      var transactionsPaid = transactions.stream()
+//          .map(transaction -> StripedSecondEntity.TransactionPaid
+//              .newBuilder()
+//              .setTransactionKey(
+//                  TransactionMerchantKey.TransactionKey
+//                      .newBuilder()
+//                      .setTransactionId(transaction.getTransactionKey().getTransactionId())
+//                      .setServiceCode(transaction.getTransactionKey().getServiceCode())
+//                      .setAccountFrom(transaction.getTransactionKey().getAccountFrom())
+//                      .setAccountTo(transaction.getTransactionKey().getAccountTo())
+//                      .build())
+//              .setMerchantId(command.getMerchantId())
+//              .setEpochSecond(state.getEpochSecond())
+//              .setStripe(state.getStripe())
+//              .setPaymentId(command.getPaymentId())
+//              .build());
+
+      //      return Stream.concat(Stream.of(stripedSecondAggregated), transactionsPaid).toList();
+
       var transactionsPaid = transactions.stream()
-          .map(transaction -> StripedSecondEntity.TransactionPaid
+          .map(transaction -> TransactionMerchantKey.TransactionKey
               .newBuilder()
-              .setTransactionKey(
-                  TransactionMerchantKey.TransactionKey
-                      .newBuilder()
-                      .setTransactionId(transaction.getTransactionKey().getTransactionId())
-                      .setServiceCode(transaction.getTransactionKey().getServiceCode())
-                      .setAccountFrom(transaction.getTransactionKey().getAccountFrom())
-                      .setAccountTo(transaction.getTransactionKey().getAccountTo())
-                      .build())
-              .setMerchantId(command.getMerchantId())
-              .setEpochSecond(state.getEpochSecond())
-              .setStripe(state.getStripe())
-              .setPaymentId(command.getPaymentId())
-              .build());
+              .setTransactionId(transaction.getTransactionKey().getTransactionId())
+              .setServiceCode(transaction.getTransactionKey().getServiceCode())
+              .setAccountFrom(transaction.getTransactionKey().getAccountFrom())
+              .setAccountTo(transaction.getTransactionKey().getAccountTo())
+              .build()).toList();
 
       var stripedSecondAggregated = StripedSecondEntity.StripedSecondAggregated
           .newBuilder()
@@ -234,9 +251,13 @@ public class StripedSecond extends AbstractStripedSecond {
           .setAggregateRequestTimestamp(command.getAggregateRequestTimestamp())
           .setLastUpdateTimestamp(lastUpdate)
           .setPaymentId(command.getPaymentId())
+          .addAllTransactionsPayed(transactionsPaid)
           .build();
 
-      return Stream.concat(Stream.of(stripedSecondAggregated), transactionsPaid).toList();
+      log.info("StripedSecondAggregated {} transactionsPaid", transactionsPaid.size());
+
+
+      return List.of(stripedSecondAggregated);
     }
   }
 }

@@ -31,6 +31,7 @@ message StripedSecondAggregated {
   google.protobuf.Timestamp last_update_timestamp = 6;
   google.protobuf.Timestamp aggregate_request_timestamp = 7;
   string payment_id = 8;
+  repeated TransactionKey transactions_payed = 9;
 }
 
 message TransactionPaid {
